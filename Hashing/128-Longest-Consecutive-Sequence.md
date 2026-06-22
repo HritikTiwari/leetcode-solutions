@@ -1,11 +1,17 @@
 # 128. Longest Consecutive Sequence
+## Pattern
+HashSet / Sequence Detection
 ## Problem
 https://leetcode.com/problems/longest-consecutive-sequence/
 ---
+## Constraints
+0 <= nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
 ## Approach 1: Brute Force
 ### Idea
 Iterate through each element and keep checking if the next number exists in array.
 ### Code
+```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         n = len(nums)
@@ -18,7 +24,7 @@ class Solution:
                 num += 1
             max_count = max(max_count, count)
         return max_count
-
+```
 ### Complexity
 Time: O(n²)
 Space: O(1)
@@ -31,6 +37,7 @@ requires checking the entire array every time, causing TLE on submission.
 First sort the array, then find the last smaller element while iterating, then return the longest.
 
 ### Code
+```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         nums.sort()
@@ -47,19 +54,22 @@ class Solution:
                 last_smaller = num
             longest = max(longest, count)
         return longest
-
+```
 ### Complexity
 Time: O(nlogn + n)
 Space: O(1)
 
-### Problem
-Still the time complexity needs to be optimized.
+### Why Improve?
+Sorting gives O(n log n), but the problem asks for an O(n) solution.
 ---
 ## Approach 3: Set operations to reduce time complexity
 ### Idea
 First create a set, then after finding the smallest element, return the longest.
-
+### Key Observation
+Every sequence has exactly one starting point.
+If x-1 exists, then x cannot be the beginning of a new sequence.
 ### Code
+```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         my_set = set()
@@ -75,8 +85,15 @@ class Solution:
                     x += 1
                 longest = max(longest, count)
         return longest
-
+```
 ### Complexity
 Time: O(n)
-Space: O(1)
-
+Space: O(n)
+## Learnings
+- HashSet provides O(1) average lookup.
+- Always look for repeated linear searches.
+- Sometimes the key is not optimizing the inner loop, but reducing the number of starting points.
+## Tags
+Hashing
+Arrays
+Sequences
