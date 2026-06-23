@@ -2,98 +2,243 @@
 ## Pattern
 HashSet / Sequence Detection
 ## Problem
-https://leetcode.com/problems/longest-consecutive-sequence/
+Given an unsorted array of integers `nums`, return the length of the longest consecutive elements sequence.
+You must write an algorithm that runs in **O(n)** time.
 ---
 ## Constraints
+```text
 0 <= nums.length <= 10^5
 -10^9 <= nums[i] <= 10^9
-## Approach 1: Brute Force
-### Idea
-Iterate through each element and keep checking if the next number exists in array.
-### Code
+```
+---
+# Approach 1: Brute Force
+## Idea
+For every element, keep checking whether the next consecutive number exists in the array.
+## Algorithm
+1. Pick an element `x`.
+2. Check if `x+1` exists.
+3. If yes, increment the count and continue.
+4. Repeat for every element.
+## Code
 ```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         n = len(nums)
         max_count = 0
+
         for i in range(n):
             num = nums[i]
             count = 1
+
             while num + 1 in nums:
                 count += 1
                 num += 1
+
             max_count = max(max_count, count)
+
         return max_count
 ```
-### Complexity
-Time: O(n²)
-Space: O(1)
-
-### Problem
-requires checking the entire array every time, causing TLE on submission.
+## Complexity Analysis
+### Time Complexity: O(n²)
+The operation:
+```python
+num + 1 in nums
+```
+takes `O(n)` because `nums` is a list.
+In the worst case:
+```python
+nums = [1,2,3,4,5,...,n]
+```
+we repeatedly search the array for the next element, leading to:
+```text
+n + (n-1) + (n-2) + ... + 1
+= O(n²)
+```
+### Space Complexity: O(1)
+No extra data structure is used.
 ---
-## Approach 2: Sorting 
-### Idea
-First sort the array, then find the last smaller element while iterating, then return the longest.
-
-### Code
+# Approach 2: Sorting
+## Idea
+Sort the array first. Consecutive elements will become adjacent.
+Handle duplicates carefully because they should not break the sequence.
+## Code
 ```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         nums.sort()
+
         longest = 0
         last_smaller = float(-inf)
         count = 0
-        for i in range(len(nums)):
-            num = nums[i]
-            if num-1 == last_smaller:
-                count+=1
+
+        for num in nums:
+
+            if num - 1 == last_smaller:
+                count += 1
                 last_smaller = num
-            elif num!=last_smaller:
+
+            elif num != last_smaller:
                 count = 1
                 last_smaller = num
+
             longest = max(longest, count)
+
         return longest
 ```
-### Complexity
-Time: O(nlogn + n)
-Space: O(1)
-
-### Why Improve?
-Sorting gives O(n log n), but the problem asks for an O(n) solution.
+## Dry Run
+```python
+nums = [100,4,200,1,3,2]
+```
+After sorting:
+```python
+[1,2,3,4,100,200]
+```
+Longest sequence:
+```text
+1 → 2 → 3 → 4
+Length = 4
+```
+## Complexity Analysis
+### Time Complexity
+```text
+Sorting = O(n log n)
+Traversal = O(n)
+Total = O(n log n)
+```
+### Space Complexity
+```text
+O(1)
+```
+(ignoring Python's internal sorting space requirements).
 ---
-## Approach 3: Set operations to reduce time complexity
-### Idea
-First create a set, then after finding the smallest element, return the longest.
-### Key Observation
-Every sequence has exactly one starting point.
-If x-1 exists, then x cannot be the beginning of a new sequence.
-### Code
+# Approach 3: HashSet (Optimal)
+## Key Observation
+Every consecutive sequence has exactly one starting point.
+For example:
+```text
+1,2,3,4
+```
+The sequence starts only at `1`.
+Because:
+```text
+1-1 = 0 (does not exist)
+2-1 = 1 (exists)
+3-1 = 2 (exists)
+4-1 = 3 (exists)
+```
+So we should start counting only when:
+```python
+x - 1 not in my_set
+```
+---
+## Idea
+1. Put all numbers into a set.
+2. Find numbers that are sequence starters.
+3. Expand the sequence from those starters only.
+## Code
 ```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
-        my_set = set()
+        my_set = set(nums)
         longest = 0
-        for i in range(len(nums)):
-            my_set.add(nums[i])
-        for j in my_set:
-            x = j
-            if x-1 not in my_set:
+
+        for x in my_set:
+
+            if x - 1 not in my_set:
                 count = 1
-                while x+1 in my_set:
-                    count += 1
+
+                while x + 1 in my_set:
                     x += 1
+                    count += 1
+
                 longest = max(longest, count)
+
         return longest
 ```
-### Complexity
-Time: O(n)
-Space: O(n)
-## Learnings
-- HashSet provides O(1) average lookup.
-- Always look for repeated linear searches.
-- Sometimes the key is not optimizing the inner loop, but reducing the number of starting points.
-## Tags
-Hashing
-Arrays
-Sequences
+---
+## Dry Run
+```python
+nums = [100,4,200,1,3,2]
+```
+Set:
+```python
+{100,4,200,1,2,3}
+```
+### x = 1
+```text
+0 not in set
+```
+Start sequence:
+```text
+1 → 2 → 3 → 4
+Length = 4
+```
+### x = 2
+```text
+1 exists
+```
+Skip.
+### x = 3
+```text
+2 exists
+```
+Skip.
+### x = 4
+```text
+3 exists
+```
+Skip.
+Answer:
+```text
+4
+```
+---
+## Complexity Analysis
+### Time Complexity: O(n)
+Although there is a nested `while` loop, each element is visited only once.
+For example:
+```text
+1 → 2 → 3 → 4
+```
+is traversed only when `x = 1`.
+When:
+```text
+x = 2, 3, 4
+```
+we skip them because:
+```python
+x - 1 in my_set
+```
+Therefore, every number participates in the `while` loop at most once.
+Total:
+```text
+Building set : O(n)
+Traversal    : O(n)
+Overall      : O(n)
+```
+### Space Complexity
+```text
+O(n)
+```
+because the HashSet may contain all elements.
+---
+
+# Comparison
+
+| Approach    | Time       | Space |
+| ----------- | ---------- | ----- |
+| Brute Force | O(n²)      | O(1)  |
+| Sorting     | O(n log n) | O(1)  |
+| HashSet     | O(n)       | O(n)  |
+---
+# Learnings
+* HashSet provides `O(1)` average lookup.
+* Repeated linear searches often indicate that hashing can help.
+* Sometimes the optimization comes from reducing the number of starting points instead of optimizing the inner loop.
+* A nested loop does not automatically mean `O(n²)`.
+---
+# Tags
+* Array
+* Hashing
+* HashSet
+* Sequence Detection
