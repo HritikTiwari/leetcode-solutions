@@ -11,4 +11,4 @@ This repository documents my journey of mastering Data Structures & Algorithms t
 - Python
 
 ## Progress
-Total Solved: 0/100
+Total Solved: 5/100
