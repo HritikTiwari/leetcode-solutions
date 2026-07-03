@@ -58,10 +58,63 @@ n + (n-1) + (n-2) + ... + 1
 No extra data structure is used.
 ---
 # Approach 2: Sorting
-## Idea
-Sort the array first. Consecutive elements will become adjacent.
-Handle duplicates carefully because they should not break the sequence.
-## Code
+## Approach 2: Sorting
+
+### Idea
+
+If we sort the array, all consecutive numbers become adjacent.
+
+For example:
+
+```text
+Original:
+[100, 4, 200, 1, 3, 2]
+
+Sorted:
+[1, 2, 3, 4, 100, 200]
+```
+
+Now, instead of searching for the next consecutive number, we only need to compare the current element with the previous unique element.
+
+There are three possible cases:
+
+1. **Current number is consecutive**
+
+   * If `num == last_smaller + 1`, extend the current sequence.
+
+2. **Current number is a duplicate**
+
+   * Ignore it because duplicates neither start nor extend a sequence.
+
+3. **Current number starts a new sequence**
+
+   * Reset the count to `1`.
+
+The variable `last_smaller` always stores the last unique element that was processed.
+
+---
+
+### Algorithm
+
+1. Sort the array.
+2. Initialize:
+
+   * `count = 0`
+   * `longest = 0`
+   * `last_smaller = -∞`
+3. Traverse the sorted array.
+4. For every number:
+
+   * If it is exactly one greater than `last_smaller`, extend the sequence.
+   * Else if it is different from `last_smaller`, start a new sequence.
+   * Otherwise, it is a duplicate, so ignore it.
+5. Update the maximum sequence length after each iteration.
+6. Return the longest sequence length.
+
+---
+
+### Code
+
 ```python
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
@@ -85,6 +138,29 @@ class Solution:
 
         return longest
 ```
+
+---
+
+### Example
+
+```text
+nums = [1, 2, 2, 3, 4]
+```
+
+| Current | last_smaller | Action             | Count | Longest |
+| ------- | ------------ | ------------------ | ----: | ------: |
+| 1       | -∞           | Start new sequence |     1 |       1 |
+| 2       | 1            | Consecutive        |     2 |       2 |
+| 2       | 2            | Duplicate → Ignore |     2 |       2 |
+| 3       | 2            | Consecutive        |     3 |       3 |
+| 4       | 3            | Consecutive        |     4 |       4 |
+
+Answer:
+
+```text
+4
+```
+
 ## Dry Run
 ```python
 nums = [100,4,200,1,3,2]
